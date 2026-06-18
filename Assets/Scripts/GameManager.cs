@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
     public float respawnInvulnerabilityTime = 3.0f;
     public int lives = 3;
     public int score = 0;
+    public UIManager uiManager;
+    private int _lastScore; 
 
     public void AsteroidDestroyed(Asteroid asteroid)
     {
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviour
         this.explosion.Play();
 
         this.lives--;
+        _lastScore = this.score;
 
         if(this.lives <= 0)
             GameOver(); 
@@ -39,11 +42,23 @@ public class GameManager : MonoBehaviour
             Invoke(nameof(Respawn), this.respawnTime);    
     }
 
+    public void UFODestroyed(UFO ufo)
+    {
+        this.explosion.transform.position = ufo.transform.position;
+        this.explosion.Play();
+        this.score += 200;
+    }
+
     private void Respawn()
     {
         this.player.transform.position = Vector3.zero;
+        
+        // Включаем спрайт и коллайдер обратно
+        this.player.GetComponent<SpriteRenderer>().enabled = true;
+        this.player.GetComponent<Collider2D>().enabled = true;
+        
+        // Временно делаем невидимым для столкновений
         this.player.gameObject.layer = LayerMask.NameToLayer("Ignore Collisions");
-        this.player.gameObject.SetActive(true);
         
         Invoke(nameof(TurnOnCollisions), this.respawnInvulnerabilityTime);
     }
@@ -55,9 +70,18 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
+        // Показываем экран Game Over
+        if (uiManager != null)
+        {
+            uiManager.ShowGameOver(this.score); // Передаем счет ДО сброса
+        }
+
         this.lives = 3;
         this.score = 0;
 
-        Invoke(nameof(Respawn), this.respawnTime);
+        // Сбрасываем заряды лазера
+        this.player.currentLaserCharges = this.player.maxLaserCharges;
+        this.player.nextLaserRechargeTime = 0f;
+
     }
 }

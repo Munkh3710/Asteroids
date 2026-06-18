@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Bullet
   - Asteroid
+  - UFO
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Asteroid
   - Boundary
   - Ignore Collisions
-  - 
+  - UFO
   - 
   - 
   - 
